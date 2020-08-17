@@ -1,3 +1,6 @@
+from skimage.color import rgba2rgb
+from skimage.feature import peak_local_max
+
 try:
     print("Elementary imports: ")
     import os
@@ -5,10 +8,11 @@ try:
     import glob
     import argparse
     from imutils import contours
-    from skimage import measure
+    from skimage import measure, color
     import argparse
     import imutils
     import cv2
+    # from pyimagesearch.transform import four_point_transform
     import argparse
 
     print("numpy/scipy imports:")
@@ -30,28 +34,40 @@ print("All imports okay. Yay!")
 
 
 def find_tfl_lights(c_image: np.ndarray, **kwargs):
-    # convert image from array
-    im = Image.fromarray(c_image)
-    im.save('image.png')
-    image = cv2.imread('image.png')
+    green, red = c_image[:, :, 1], c_image[:, :, 0]
 
-    # convert the image to grayscale
-    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    red_kernel = np.array([[-0.5, 1, -0.5],
+                        [1, 1, 1],
+                        [1, 2, 1],
+                        [1, 1, 1],
+                        [-0.5, 1, -0.5],
+                        [-0.5, -0.5, -0.5],
+                        [-0.5, -0.5, -0.5],
+                        [-0.5, -0.5, -0.5],
+                        [-0.5, -0.5, -0.5],
+                        [-0.5, -0.5, -0.5]])
 
-    # blur image
-    blurred = cv2.GaussianBlur(img, (11, 11), 0)
+    green_kernel = np.array([[-0.5, -0.5, -0.5],
+                       [-0.5, -0.5, -0.5],
+                       [-0.5, -0.5, -0.5],
+                       [-0.5, -0.5, -0.5],
+                       [-0.5, -0.5, -0.5],
+                        [-0.5, 1, -0.5],
+                        [1, 1, 1],
+                        [1, 2, 1],
+                        [1, 1, 1],
+                        [-0.5, 1, -0.5]])
 
-    # threshing image, all spot-lights turn white, the rest is black
-    ret, thresh = cv2.threshold(blurred, 170, 255, cv2.THRESH_BINARY)
+    red_result = sg.convolve2d(red, red_kernel, mode='same')
+    green_result = sg.convolve2d(green, green_kernel, mode='same')
 
-    # TODO calculate max and min brightness and do thrashing according to that, so thrashing should be custom for
-    #  every image, and will work also on very dark or light images
+    max_red_dots = peak_local_max(red_result, min_distance=20, num_peaks=10)
+    max_green_dots = peak_local_max(green_result, min_distance=20, num_peaks=10)
 
-    # just to visualize results...
-    show_image_and_gt(thresh, None)
-
-    # TODO kernel - our kernel will be round and will detect the round spot-lights which might very well be traffic
-    #  lights... then we will go back to colorful image and determine the color of spotlight
+    x_red = max_red_dots[:, -1]
+    y_red = max_red_dots[:, 0]
+    x_green = max_green_dots[:, -1]
+    y_green = max_green_dots[:, 0]
 
     """
     Detect candidates for TFL lights. Use c_image, kwargs and you imagination to implement
@@ -59,10 +75,7 @@ def find_tfl_lights(c_image: np.ndarray, **kwargs):
     :param kwargs: Whatever config you want to pass in here
     :return: 4-tuple of x_red, y_red, x_green, y_green
     """
-    x = np.arange(-100, 100, 20) + c_image.shape[1] / 2
-    y_red = [c_image.shape[0] / 2 - 120] * len(x)
-    y_green = [c_image.shape[0] / 2 - 100] * len(x)
-    return x, y_red, x, y_green
+    return x_red, y_red, x_green, y_green
 
 
 def show_image_and_gt(image, objs, fig_num=None):
