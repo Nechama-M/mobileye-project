@@ -41,13 +41,15 @@ def calc_3D_data(norm_prev_pts, norm_curr_pts, R, foe, tZ):
     return corresponding_ind, np.array(pts_3D), validVec
 
 
+# 820 364
+
 def normalize(pts, focal, pp):
     # transform pixels into normalized pixels using the focal length and principle point
     normal_pts = []
     for pt in pts:
         pt_x = (pt[0] - pp[0]) / focal
         pt_y = (pt[1] - pp[1]) / focal
-        normal_pts.append([pt_x,pt_y])
+        normal_pts.append([pt_x, pt_y])
     return np.array(normal_pts)
 
 
@@ -56,7 +58,7 @@ def unnormalize(pts, focal, pp):
     for pt in pts:
         pt_x = pt[0] * focal + pp[0]
         pt_y = pt[1] * focal + pp[1]
-        unnormal_pts.append([pt_x,pt_y])
+        unnormal_pts.append([pt_x, pt_y])
     return np.array(unnormal_pts)
     # transform normalized pixels into pixels using the focal length and principle point
 
@@ -115,8 +117,11 @@ def calc_dist(p_curr, p_rot, foe, tZ):
     ex, ey = foe[0], foe[1]
     xc, yc = p_curr[0], p_curr[1]
     xr, yr = p_rot[0], p_rot[1]
-    if abs(xc - xr) > abs(yc - yr):
-        return (tZ * (ex - xr)) / (xc - xr)
-    else:
-        return (tZ * (ey - yr)) / (yc - yr)
 
+    Zx = (tZ * (ex - xr)) / (xc - xr)
+    Zy = (tZ * (ey - yr)) / (yc - yr)
+
+    x_d = abs(xc - xr)
+    y_d = abs(yc - yr)
+
+    return (Zx * x_d + Zy * y_d) / (x_d + y_d)
