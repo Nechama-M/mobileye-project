@@ -4,7 +4,7 @@ import pickle
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
 
-import SFM
+from . import SFM
 
 def visualize(prev_container, curr_container, focal, pp):
     norm_prev_pts, norm_curr_pts, R, norm_foe, tZ = SFM.prepare_3D_data(prev_container, curr_container, focal, pp)
@@ -34,6 +34,8 @@ def visualize(prev_container, curr_container, focal, pp):
 class FrameContainer(object):
     def __init__(self, img_path):
         self.img = imread(img_path) #png.read_png_int(img_path)
+        self.img_id = int(img_path[-22: -16])
+        self.img_path = img_path
         self.traffic_light = []
         self.traffic_lights_3d_location = []
         self.EM = []
@@ -41,24 +43,24 @@ class FrameContainer(object):
         self.valid=[]
 
 # read data and run
-curr_frame_id = 29
-prev_frame_id = 24
-pkl_path = 'dusseldorf_000049.pkl'
-prev_img_path = 'dusseldorf_000049_0000' + str(prev_frame_id) + '_leftImg8bit.png'
-curr_img_path = 'dusseldorf_000049_0000' + str(curr_frame_id) + '_leftImg8bit.png'
-prev_container = FrameContainer(prev_img_path)
-curr_container = FrameContainer(curr_img_path)
-with open(pkl_path, 'rb') as pklfile:
-    data = pickle.load(pklfile, encoding='latin1')
-focal = data['flx']
-pp = data['principle_point']
-prev_container.traffic_light = np.array(data['points_' + str(prev_frame_id)][0])
-curr_container.traffic_light = np.array(data['points_' + str(curr_frame_id)][0])
-EM = np.eye(4)
-for i in range(prev_frame_id, curr_frame_id):
-    EM = np.dot(data['egomotion_' + str(i) + '-' + str(i + 1)], EM)
-curr_container.EM = EM
-curr_container = SFM.calc_TFL_dist(prev_container, curr_container, focal, pp)
-visualize(prev_container, curr_container, focal, pp)
-
-
+# curr_frame_id = 29
+# prev_frame_id = 24
+# pkl_path = 'dusseldorf_000049.pkl'
+# prev_img_path = 'dusseldorf_000049_0000' + str(prev_frame_id) + '_leftImg8bit.png'
+# curr_img_path = 'dusseldorf_000049_0000' + str(curr_frame_id) + '_leftImg8bit.png'
+# prev_container = FrameContainer(prev_img_path)
+# curr_container = FrameContainer(curr_img_path)
+# with open(pkl_path, 'rb') as pklfile:
+#     data = pickle.load(pklfile, encoding='latin1')
+# focal = data['flx']
+# pp = data['principle_point']
+# prev_container.traffic_light = np.array(data['points_' + str(prev_frame_id)][0])
+# curr_container.traffic_light = np.array(data['points_' + str(curr_frame_id)][0])
+# EM = np.eye(4)
+# for i in range(prev_frame_id, curr_frame_id):
+#     EM = np.dot(data['egomotion_' + str(i) + '-' + str(i + 1)], EM)
+# curr_container.EM = EM
+# curr_container = SFM.calc_TFL_dist(prev_container, curr_container, focal, pp)
+# visualize(prev_container, curr_container, focal, pp)
+#
+#
