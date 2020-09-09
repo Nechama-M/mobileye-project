@@ -5,7 +5,6 @@ import numpy as np
 def calc_TFL_dist(prev_container, curr_container, focal, pp):
     norm_prev_pts, norm_curr_pts, R, foe, tZ = prepare_3D_data(prev_container, curr_container, focal, pp)
     if abs(tZ) < 10e-6:
-    #
         print('tz = ', tZ)
     elif norm_prev_pts.size == 0:
         print('no prev points')
@@ -124,5 +123,6 @@ def calc_dist(p_curr, p_rot, foe, tZ):
 
     x_d = abs(xc - xr)
     y_d = abs(yc - yr)
-
+    # print("ex:", ex, " ey:", ey, " xc:", xc, " yc:", yc, " xr:", xr, " yr:", yr, " Zx:", Zx, " Zy:", Zy, " x_d:", x_d, " y_d:", y_d)
+    print((Zx * x_d + Zy * y_d) / (x_d + y_d))
     return (Zx * x_d + Zy * y_d) / (x_d + y_d)
