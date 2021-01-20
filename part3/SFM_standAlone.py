@@ -13,12 +13,12 @@ def visualize(prev_container, curr_container, focal, pp):
     foe = np.squeeze(SFM.unnormalize(np.array([norm_foe]), focal, pp))
     
     fig, (curr_sec, prev_sec) = plt.subplots(1, 2, figsize=(12,6))
-    prev_sec.set_title('prev(' + str(prev_frame_id) + ')')
+    prev_sec.set_title('prev(' + str(prev_container.img_id) + ')')
     prev_sec.imshow(prev_container.img)
     prev_p = prev_container.traffic_light
     prev_sec.plot(prev_p[:,0], prev_p[:,1], 'b+')
 
-    curr_sec.set_title('curr(' + str(curr_frame_id) + ')')
+    curr_sec.set_title('curr(' + str(curr_container.img_id) + ')')
     curr_sec.imshow(curr_container.img)
     curr_p = curr_container.traffic_light
     curr_sec.plot(curr_p[:,0], curr_p[:,1], 'b+')
